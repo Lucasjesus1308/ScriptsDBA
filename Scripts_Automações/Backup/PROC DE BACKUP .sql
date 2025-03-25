@@ -1,3 +1,5 @@
+
+--Crie a tabela Backup_Log
 CREATE TABLE dbo.Backup_Log (
     ID INT IDENTITY(1,1) PRIMARY KEY,
     DatabaseName NVARCHAR(200),
@@ -7,10 +9,15 @@ CREATE TABLE dbo.Backup_Log (
     ErrorMessage NVARCHAR(MAX),
 	BackupType NVARCHAR(50));
 
-SELECT * FROM dbo.Backup_Log ORDER BY BackupDate DESC;
+SELECT * FROM Traces.dbo.Backup_Log ORDER BY BackupDate DESC;
+
+
 
 
 EXEC SP_BACKUP_FULL @CAMINHO = 'C:\Users\marcelo.jesus\Documents\TESTEBACKUP\bkp';
+
+---------------------------------------------------------PROC BACKUP FULL----------------------------------
+
 CREATE PROCEDURE SP_BACKUP_FULL (@CAMINHO VARCHAR(500))
 AS
 BEGIN
@@ -43,7 +50,7 @@ BEGIN
     END CATCH
 
     -- Registrando no log com o tipo de backup (FULL)
-    INSERT INTO dbo.Backup_Log (DatabaseName, BackupPath, VerifyStatus, ErrorMessage, BackupType)
+    INSERT INTO Traces.dbo.Backup_Log (DatabaseName, BackupPath, VerifyStatus, ErrorMessage, BackupType)
     VALUES ('testebackup', @FULLPATH, @STATUS, @ERROR_MSG, 'FULL')
 END
 
@@ -86,7 +93,7 @@ BEGIN
     END CATCH
 
     -- Registrando no log com o tipo de backup (DIFF)
-    INSERT INTO dbo.Backup_Log (DatabaseName, BackupPath, VerifyStatus, ErrorMessage, BackupType)
+    INSERT INTO Traces.dbo.Backup_Log (DatabaseName, BackupPath, VerifyStatus, ErrorMessage, BackupType)
     VALUES ('testebackup', @FULLPATH, @STATUS, @ERROR_MSG, 'DIFF')
 END
 
@@ -125,6 +132,6 @@ BEGIN
     END CATCH
 
     -- Registrando no log com o tipo de backup (LOG)
-    INSERT INTO dbo.Backup_Log (DatabaseName, BackupPath, VerifyStatus, ErrorMessage, BackupType)
+    INSERT INTO Traces.dbo.Backup_Log (DatabaseName, BackupPath, VerifyStatus, ErrorMessage, BackupType)
     VALUES ('testebackup', @FULLPATH, @STATUS, @ERROR_MSG, 'LOG')
 END
