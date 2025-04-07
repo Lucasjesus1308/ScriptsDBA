@@ -1,9 +1,9 @@
 -- Drop da procedure se existir
-IF OBJECT_ID('dbo.sp_Informacoes_SQLServer', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.sp_Informacoes_SQLServer;
+IF OBJECT_ID('dbo.sp_DBInfo', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_DBInfo;
 GO
 
-CREATE PROCEDURE dbo.sp_Informacoes_SQLServer
+CREATE PROCEDURE dbo.sp_DBInfo
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -38,7 +38,7 @@ BEGIN
     ORDER BY name;
 
     -- ===========================
-    PRINT '====== INFORMAÇÕES DO BANCO DE DADOS ATUAL (INCLUINDO TAMANHO) ======';
+    PRINT '====== INFORMAÇÕES DO BANCO DE DADOS ATUAL (INCLUINDO TAMANHO E ESTATÍSTICAS) ======';
     SELECT 
         db.name AS Nome_Banco,
         db.state_desc AS Estado,
@@ -46,27 +46,21 @@ BEGIN
         db.containment_desc AS Contencao,
         db.compatibility_level AS Nivel_Compatibilidade,
         db.create_date AS Data_Criacao,
-        CAST(SUM(size) * 8 / 1024 AS VARCHAR(20)) + ' MB' AS Tamanho_MB
+        CAST(SUM(mf.size) * 8 / 1024 AS DECIMAL(10,2)) AS Tamanho_Total_MB,
+        db.is_auto_update_stats_on AS Auto_Update_Statistics_Ativo,
+        db.is_auto_update_stats_async_on AS Auto_Update_Statistics_Assincrono
     FROM sys.databases AS db
-    JOIN sys.master_files AS mf ON db.database_id = mf.database_id
-    WHERE db.name = DB_NAME()
+    INNER JOIN sys.master_files AS mf ON db.database_id = mf.database_id
+    WHERE db.database_id = DB_ID() -- Somente o banco atual
     GROUP BY 
         db.name,
         db.state_desc,
         db.recovery_model_desc,
         db.containment_desc,
         db.compatibility_level,
-        db.create_date;
-
-    -- ===========================
-    PRINT '====== LOCALIZAÇÃO DOS ARQUIVOS DO BANCO DE DADOS ATUAL ======';
-    SELECT 
-        name AS Nome_Arquivo,
-        physical_name AS Caminho_Fisico,
-        type_desc AS Tipo_Arquivo,
-        CAST(size * 8 / 1024 AS VARCHAR(20)) + ' MB' AS Tamanho_Arquivo_MB
-    FROM sys.master_files
-    WHERE database_id = DB_ID();
+        db.create_date,
+        db.is_auto_update_stats_on,
+        db.is_auto_update_stats_async_on;
 
 END;
 GO
