@@ -1,9 +1,9 @@
 -- Drop da procedure se existir
-IF OBJECT_ID('dbo.sp_CheckStats', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.sp_Estatisticas_Desatualizadas;
+IF OBJECT_ID('dbo.sp_checkstats', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_checkstats;
 GO
 
-CREATE PROCEDURE dbo.sp_CheckStats
+CREATE PROCEDURE dbo.sp_checkstats
 AS
 BEGIN
     SET NOCOUNT ON;
